@@ -1,96 +1,75 @@
-.Hi {
-    color: #ffffff;
-    position: absolute;
-    text-align: center;
-    left: 0;
-    right: 0;
-    margin-left: auto;
-    margin-right: auto;
-    top: 11%;
-    font-size: 1rem;
+/* Reset all default browser margins and paddings */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-.choosegame {
-    color: #ffffff;
-    position: absolute;
+/* Main page settings — centers everything */
+body {
+    background-color: #313030;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    color: #ffffff;            /*White*/
+    min-height: 100vh;         /* full viewport height */
+    display: flex;             /* enable flexbox layout */
+    flex-direction: column;    /* stack items vertically */
+    justify-content: center;   /* center vertically */
+    align-items: center;       /* center horizontally */
     text-align: center;
-    left: 0;
-    right: 0;
-    margin-left: auto;
-    margin-right: auto;
-    top: 15%;
-    font-size: 1rem;
+    padding: 2rem;
 }
 
-.contactme {
-    color: #ffffff;
-    position: absolute;
-    text-align: center;
-    left: 0;
-    right: 0;
-    margin-left: auto;
-    margin-right: auto;
-    bottom: 0px;
+/* Main headline - Play. laugh. Practice English*/
+.main-title {
+    font-size: 2.5rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    line-height: 1.2;
 }
 
+/* Subtitle - Choose a game*/
+.subtitle {
+    font-size: 1.2rem;
+    color: #ccc;
+    margin-bottom: 2rem;
+}
+
+/* Container for game links (buttons) */
+.links-container {
+    display: flex;
+    flex-direction: column;   /* buttons stacked vertically */
+    gap: 1rem;               /* space between buttons */
+    margin-bottom: 1.5rem;
+}
+
+/* Button styles */
 a {
-    color:#000;
-    text-decoration: none;
-    margin: 20px auto;
-    display: block;
-    text-align: center;
+    background: white;
+    color: black;
+    padding: 0.8rem 1.5rem;
     border-radius: 10px;
-    background-color: rgb(255, 255, 255);
-    max-width: 150px;
-    padding: 12px;
-    position: relative;
-    top: 240px;
-    cursor: auto;  
+    text-decoration: none;
+    transition: 0.2s;        /* smooth hover effect */
 }
 
+/* Button hover effect */
 a:hover {
-    color:#000;
-    text-decoration: none;
-    cursor: pointer;
-    background: rgb(185, 245, 204);   
+    background: rgb(185, 245, 204);
 }
 
-.btn {
-    margin: 20px auto;
-    display: block;
-    border-radius: 10px;
-    background-color: rgb(255, 255, 255);
-    min-width: 130px;
-    padding: 12px;
-    position: relative;
-    top: 240px;
-    cursor: auto;
-    }
-
-    .btn:hover {
-        cursor: pointer;
-        background: rgb(185, 245, 204);   
-    }
-
-.wrapper {
-    display: grid;
-    border-radius: 10px;
-    background-color: rgb(199, 247, 214);
-    grid-template-columns: 100px 100px 100px 100px;
-    column-gap: 5px;
-    row-gap: 5px;
-    text-align: center;
-    max-width: 420px;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 16px;
-    padding-right: 16px;
-    position: relative;
-    top: 150px;
+/* Cat image */
+.cat-image {
+    max-width: 200px;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 16px;
 }
 
-.wrapper > div {
-    border: 0.5px solid #000;
-    border-radius: 0px;
-    background-color: rgb(226, 249, 255);
+/* Contact info at the bottom */
+.contactme {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.85rem;
+    color: #aaa;
+    margin-top: 1rem;
 }
