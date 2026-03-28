@@ -205,3 +205,8 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+#My additional rules
+data/rooms.json # Dynamic data (rooms) that changes during the game
+.DS_Store
+Thumbs.db
