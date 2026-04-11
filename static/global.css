@@ -8,6 +8,7 @@
 /* Main page settings — centers everything */
 body {
     background-color: #313030;
+    /* System font stack for maximum performance — no external requests, instant rendering */
     font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     color: #ffffff;            /*White*/
     min-height: 100vh;         /* full viewport height for all browsers*/
@@ -52,24 +53,27 @@ body {
     margin-bottom: 0;
 }
 
-/* Game link styles (styled as buttons for better UX) */
-a {
+/* Common style for all elements that look like buttons.
+Game links are styled as buttons for better UX. */
+a, .btn {
     background: white;
     color: black;
     padding: 0.8rem 1.5rem;
     border-radius: 10px;
     text-decoration: none;
-    transition: none;        /* smooth hover effect */
+    display: inline-block;
+    transition: none;
 }
 
-/* Game links hover effect */
-a:hover {
+a:hover, .btn:hover {
     background: rgb(185, 245, 204);
 }
 
 /* Cat image */
 .cat-image {
+    width: 100%;
     max-width: 200px;
+    height: auto;
     margin-top: 1.5rem;
     margin-bottom: 1.5rem;
     border-radius: 16px;
@@ -82,4 +86,70 @@ a:hover {
     font-size: 0.85rem;
     color: #aaa;
     margin-top: 1rem;
+}
+
+/* Game 1 — Describe & Guess (game.html) */
+.howtoplay {
+    max-width: 32rem;
+    margin: 0 auto 1.5rem;
+    line-height: 1.5;
+    color: #ddd;
+}
+
+.waiting-cat {
+    max-width: 200px;
+    width: 100%;
+    height: auto;
+    margin-top: 1rem;
+    border-radius: 16px;
+}
+
+#screen-name input[type="text"] {
+    margin: 1rem 0;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: none;
+    min-width: 12rem;
+}
+
+#okBtn,
+#startGame {
+    margin-top: 0.5rem;
+    padding: 0.6rem 1.25rem;
+    font-size: 1rem;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    background: white;
+    color: #111;
+}
+
+#okBtn:hover,
+#startGame:hover {
+    background: rgb(185, 245, 204);
+}
+
+#countdown {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 4rem;
+    font-weight: bold;
+    color: white;
+    background: rgba(0,0,0,0.7);
+    padding: 1rem 2rem;
+    border-radius: 20px;
+    z-index: 10;
+}
+
+<div id="countdown" style="display: none; font-size: 4rem; text-align: center;">3</div>
+
+.card-image {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
 }

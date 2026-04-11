@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Specify character encoding to support all languages and symbols. -->
+    <meta charset="UTF-8">
+    <!-- Ensures proper display on mobile devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Describe and guess</title>
+    <!-- Favicon (website icon) -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+    <!-- Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='global.css') }}">
+</head>
+
+<body>
+    <!-- Screen 1: enter your name -->
+    <div id="screen-name">
+        <h1>Enter your name</h1>
+        <input type="text" id="playerName" minlength="1">
+
+        <div class="OK">
+             <button id="okBtn">OK</button>
+        </div>
+    </div>
+
+    <!-- Screen 2: waiting -->
+    <div id="screen-waiting" style="display: none;">
+        <h1>Waiting for the players to join in...</h1>
+        <div class="startGame">
+             <button id="startGame">Start the game</button>
+        </div>
+    <!-- Waiting cat — adds a friendly touch -->
+        <img class="waiting-cat" src="{{ url_for('static', filename='game_1_describe_and_guess/images/WaitingCat.jpg') }}" alt="Waiting cat">
+    </div>
+    <!-- Screen 3: Game -->
+    <div id="screen-game" style="display: none;">
+        <h1>Game screen</h1>
+        <div id="countdown" style="font-size: 4rem; text-align: center; margin: 2rem;">3</div>
+        <p>Time left: <span id="timer">90</span></p>
+        <img id="cardImage" class="card-image" src="" alt="Card image">
+        <h2 id="cardWord"></h2>
+        <p>Score: <span id="score">0</span></p>
+        <button id="plusBtn">+1</button>
+        <button id="skipBtn">Skip</button>
+    </div>
+
+        <!-- Screen 4: room not found error -->
+        <div id="screen-error" style="display: none;">
+            <h1>The room doesn't exist</h1>
+            <button id="goHomeBtn">Go to the main page</button>
+        </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        // Connect to WebSocket server
+        const socket = io();
+
+        let currentRoomCode = null;
+        let playerName = null;
+        let cards = [];
+        let currentIndex = 0;
+        let score = 0;
+        let timerInterval = null;
+        let timeLeft = 90;
+
+        //Start the round timer
+        function startTimer() {
+            if(timerInterval) clearInterval(timerInterval);
+            timeLeft = 90;
+            document.getElementById('timer').textContent = timeLeft;
+
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 1) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    document.getElementById('timer').textContent = "0";
+                    endRound();
+                } else {
+                    timeLeft--;
+                    document.getElementById('timer').textContent = timeLeft;
+                }
+            }, 1000); // 1000 milliseconds = 1 second
+        }
+
+        // Check if there's a room code in the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomFromUrl = urlParams.get('room');
+
+        if (roomFromUrl) {
+            // Trying to join a room
+            currentRoomCode = roomFromUrl;
+            socket.emit('check_room', { room_code: roomFromUrl });
+            document.getElementById('screen-name').style.display = 'block';
+        } else {
+            // No room code — show name screen for creating a new room
+            document.getElementById('screen-name').style.display = 'block';
+        }
+
+        // ---------- Load cards from JSON ----------
+        fetch('/static/game_1_describe_and_guess/data/cards.json')
+            .then(response => response.json())
+            .then(data => {
+                cards = data;
+                showCard(0);
+            })
+            .catch(error => console.error('Upload error:', error));
+
+        // Show countdown 3-2-1 before revealing the card
+        function startCountdown(callback) {
+            let count = 3;
+            const countdownElement = document.getElementById('countdown');
+            countdownElement.style.display = 'block';
+            countdownElement.textContent = count;
+
+            const interval = setInterval(() => {
+                count--;
+                if (count >= 1) {
+                    countdownElement.textContent = count;
+                } else {
+                    clearInterval(interval);
+                    countdownElement.style.display = 'none';
+                    if (callback) callback();
+                }
+            }, 1000);
+        }
+
+
+        function showCard(index) {
+            if (cards.length === 0) return;
+            if (index < cards.length) {
+                document.getElementById('cardWord').textContent = cards[index].word;
+                document.getElementById('cardImage').src = cards[index].image;
+            } else {
+                document.getElementById('cardWord').textContent = 'Time\'s up!';
+                document.getElementById('cardImage').style.display = 'none';
+            }
+        }
+
+        function nextCard() {
+            if (currentIndex < cards.length) {
+                currentIndex++;
+                showCard(currentIndex);
+            }
+        }
+
+        // ---------- Socket events ----------
+        socket.on('room_created', (data) => {
+            currentRoomCode = data.room_code;
+            // Add room code to URL without reloading the page
+            const newUrl = `${window.location.origin}/describe-and-guess/${currentRoomCode}`;
+            window.history.pushState({}, '', newUrl);
+
+            document.getElementById('screen-waiting').style.display = 'block';
+            document.getElementById('screen-name').style.display = 'none';
+        });
+
+        socket.on('player_joined', (data) => {
+            console.log('Players in room:', data.players);
+        });
+
+        socket.on('game_started', () => {
+            document.getElementById('screen-waiting').style.display = 'none';
+            document.getElementById('screen-game').style.display = 'block';
+
+            // Hide card and buttons during countdown
+            document.getElementById('cardImage').style.display = 'none';
+            document.getElementById('cardWord').style.display = 'none';
+            document.getElementById('plusBtn').style.display = 'none';
+            document.getElementById('skipBtn').style.display = 'none';
+
+            // Start countdown, then show card and start timer
+            startCountdown(() => {
+                document.getElementById('cardImage').style.display = 'block';
+                document.getElementById('cardWord').style.display = 'block';
+                document.getElementById('plusBtn').style.display = 'inline-block';
+                document.getElementById('skipBtn').style.display = 'inline-block';
+                startTimer();
+                showCard(currentIndex);
+            });
+        });
+
+        socket.on('error', (data) => {
+            // If the room doesn't exist, show the error screen
+            if (data.message === 'Room not found') {
+                // Hide the name input screen
+                document.getElementById('screen-name').style.display = 'none';
+                // Show the error message screen with a button to go home
+                document.getElementById('screen-error').style.display = 'block';
+            } else {
+                // For any other errors, show a simple alert (keeps it simple for the user)
+                alert(data.message);
+            }
+        });
+
+        socket.on('room_exists', (data) => {
+            if (data.exists) {
+            // Room exists, show name input (already visible)
+                console.log('Room exists, ready to join');
+            }
+        });
+
+
+        // ---------- Button handlers (send to server) ----------
+        document.getElementById('okBtn').onclick = () => {
+    playerName = document.getElementById('playerName').value;
+    if (playerName.length < 1) {
+        alert('Please enter your name');
+        return;
+    }
+
+    // Room code: ?room=CODE or /game1/game/CODE — NOT the last segment of /game1/game
+    // (that segment is the word "game", which wrongly triggered "join" and "room not found").
+    const params = new URLSearchParams(window.location.search);
+    let roomToJoin = params.get('room');
+    if (!roomToJoin) {
+        const segments = window.location.pathname.split('/').filter((s) => s.length);
+        if (segments.length >= 3 && segments[0] === 'game1' && segments[1] === 'game') {
+            roomToJoin = segments[2];
+        } else if (segments.length >= 2 && segments[0] === 'describe-and-guess') {
+            roomToJoin = segments[1];
+        }
+    }
+
+    if (roomToJoin) {
+        // Есть код в URL → присоединяемся к существующей комнате
+        currentRoomCode = roomToJoin;
+        socket.emit('check_room', { room_code: currentRoomCode });
+
+        socket.once('room_exists', (data) => {
+            if (data.exists) {
+                socket.emit('join_room', { room_code: currentRoomCode, name: playerName });
+                document.getElementById('screen-name').style.display = 'none';
+                document.getElementById('screen-waiting').style.display = 'block';
+            } else {
+                document.getElementById('screen-name').style.display = 'none';
+                document.getElementById('screen-error').style.display = 'block';
+            }
+        });
+    } else {
+        // There's no room code in URl → create a new room
+        socket.emit('create_room', { name: playerName });
+        document.getElementById('screen-name').style.display = 'none';
+        document.getElementById('screen-waiting').style.display = 'block';
+    }
+};
+
+        document.getElementById('startGame').onclick = () => {
+            if (currentRoomCode) {
+                socket.emit('start_game', { room_code: currentRoomCode });
+            } else {
+                alert('No room found');
+            }
+        };
+
+        document.getElementById('plusBtn').onclick = () => {
+            if (currentIndex < cards.length) {
+                score++;
+                document.getElementById('score').textContent = score;
+                nextCard();
+            }
+        };
+
+        document.getElementById('skipBtn').onclick = () => {
+            nextCard();
+        };
+
+        // Redirect user to the home page when they click the button
+        document.getElementById('goHomeBtn').onclick = () => {window.location.href = '/';};
+        </script>
+
+
+
+</body>
+</html>
+
