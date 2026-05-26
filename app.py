@@ -8,6 +8,7 @@ import secrets # for secure token generation (for the host)
 import time
 import threading
 import json
+import sqlite3
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -22,6 +23,54 @@ rooms = {}
 # Load words for the game
 with open('static/game_1_describe_and_guess/data/words.json', 'r', encoding='utf-8') as f:
     words = json.load(f)
+
+DB_PATH = 'game.db'
+
+def init_db():
+    """Create the database tables if they don't exist yet."""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('''CREATE TABLE IF NOT EXISTS rooms (
+        room_code TEXT PRIMARY KEY,
+        host_token TEXT,
+        game_started INTEGER DEFAULT 0,
+        data TEXT
+    )''')
+    conn.commit()
+    conn.close()
+    print("Database initialized.")
+
+
+def save_room_to_db(room_code):
+    """Save a single room's data to the database."""
+    if room_code not in rooms:
+        return
+    room = rooms[room_code]
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('''INSERT OR REPLACE INTO rooms (room_code, host_token, game_started, data)
+                      VALUES (?, ?, ?, ?)''',
+                   (room_code,
+                    room.get('host_token'),
+                    int(room.get('game_started', False)),
+                    json.dumps(room)))
+    conn.commit()
+    conn.close()
+
+
+def load_rooms_from_db():
+    """Load all saved rooms from the database into memory."""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('SELECT room_code, data FROM rooms')
+    for row in cursor.fetchall():
+        room_code = row[0]
+        room_data = json.loads(row[1])
+        rooms[room_code] = room_data
+        print(f"Loaded room: {room_code}")
+    conn.close()
+
+
 
 def generate_room_code():
     """Generate random 4-character room code (letters + digits)"""
@@ -77,6 +126,8 @@ def handle_create_room(data):
         'timer_thread': None  # background thread for countdown
     }
 
+    save_room_to_db(room_code)
+
     # Add player to SocketIO room
     join_room(room_code)
 
@@ -123,9 +174,15 @@ def handle_join_room(data):
             return
 
     # A regular player joins (or the host joins for the first time)
+    if player_name in room_data['players']:
+        emit('error', {'message': 'This name is already taken. Please choose another.'})
+        return
+
     if player_name not in room_data['players']:
         room_data['players'][player_name] = 0
     join_room(room_code)
+
+    save_room_to_db(room_code)
 
     emit('player_joined', {
         'players': list(room_data['players'].keys())
@@ -178,6 +235,7 @@ def handle_start_game(data):
 
     rooms[room_code]['game_started'] = True
     emit('game_started', to=room_code)
+    save_room_to_db(room_code)
 
 @socketio.on('become_explainer')
 def handle_become_explainer(data):
@@ -214,6 +272,10 @@ def start_round_timer(room_code):
 
     def timer_task():
         while room.get('round_active') and room_code in rooms:
+            if room.get('timer_paused'):
+                time.sleep(0.1)
+                continue
+
             time_left = room.get('timer_time_left', room['duration'])
             socketio.emit('timer_update', {'time_left': time_left}, to=room_code)
             if time_left <= 0:
@@ -222,11 +284,6 @@ def start_round_timer(room_code):
             if not room.get('round_active'):
                 return
             room['timer_time_left'] = time_left - 1
-
-        if room_code not in rooms:
-            return
-        if not room.get('round_active'):
-            return
 
         room['last_round'] = {
             'player': room['explainer'],
@@ -274,8 +331,6 @@ def handle_pause_timer(data):
         except (TypeError, ValueError):
             pass
     room['timer_paused'] = True
-    room['round_active'] = False
-
 
 @socketio.on('resume_timer')
 def handle_resume_timer(data):
@@ -289,8 +344,6 @@ def handle_resume_timer(data):
         return
     room['timer_paused'] = False
     emit('timer_update', {'time_left': room['timer_time_left']}, to=room_code)
-    start_round_timer(room_code)
-
 
 @socketio.on('score_update')
 def handle_score_update(data):
@@ -342,6 +395,9 @@ def handle_round_end(data):
     room_data['round_active'] = False
     room_data['explainer'] = None
 
+    save_room_to_db(room_code)
+
+
 @socketio.on('next_round')
 def handle_next_round(data):
     room_code = data.get('room_code')
@@ -350,6 +406,7 @@ def handle_next_round(data):
     room_data = rooms[room_code]
     room_data['round_active'] = False
     room_data['explainer'] = None
+    room_data['timer_paused'] = False
     room_data.pop('last_round', None)
     emit('next_round_ready', to=room_code)
 
@@ -383,6 +440,7 @@ def handle_disconnect():
         # Check if the disconnected client was the host
         if sid == room_data.get('host_sid'):
             room_data['host_sid'] = None
+            save_room_to_db(room_code)
             emit('host_disconnected', {
                 'message': 'Host disconnected. Waiting for them to return...'
             }, to=room_code)
@@ -399,6 +457,10 @@ def handle_kick_player(data):
 
 
 # -------------------- RUN SERVER --------------------
+
+# Initialize database and load saved rooms on startup
+init_db()
+load_rooms_from_db()
 
 if __name__ == '__main__':
     # debug=True auto-restarts when code changes

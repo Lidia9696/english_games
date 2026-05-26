@@ -13,14 +13,16 @@
 </head>
 
 <body class="page-game">
+    <button id="theme-toggle" class="theme-toggle" title="Switch theme">🌓</button>
     <div class="main-card"> <!-- Light card with rounded corners - purely decorative -->
         <!-- Screen 1: enter your name -->
         <div id="screen-name">
             <h1>Enter your name</h1>
-            <input type="text" id="playerName" minlength="1">
+            <input type="text" id="playerName" minlength="1" maxlength="20">
+            <p id="name-error" class="name-error"></p>
 
             <div class="OK">
-                 <button id="okBtn">OK</button>
+                 <button id="submit_name_btn">OK</button>
             </div>
         </div>
 
@@ -425,6 +427,12 @@
                 document.getElementById('screen-name').style.display = 'none';
                 // Show the error message screen with a button to go home
                 document.getElementById('screen-error').style.display = 'block';
+            } else if (data.message === 'This name is already taken. Please choose another.') {
+                document.getElementById('screen-waiting').style.display = 'none';
+                document.getElementById('screen-name').style.display = 'flex';
+                const nameError = document.getElementById('name-error');
+                nameError.textContent = 'This name is already taken. Please choose another.';
+                nameError.classList.add('show');
             } else {
                 // For any other errors, show a simple alert (keeps it simple for the user)
                 alert(data.message);
@@ -537,12 +545,24 @@
         });
 
         // ---------- Button handlers (send to server) ----------
-        document.getElementById('okBtn').onclick = () => {
-            playerName = document.getElementById('playerName').value;
-            if (playerName.length < 1) {
-            alert('Please enter your name');
-            return;
-        }
+
+        document.getElementById('submit_name_btn').onclick = () => {
+
+            const nameError = document.getElementById('name-error');
+            nameError.classList.remove('show');
+
+            playerName = document.getElementById('playerName').value.trim();
+                if (playerName.length < 1) {
+                    nameError.textContent = 'Please enter your name';
+                    nameError.classList.add('show');
+                    return;
+                }
+                if (playerName.length > 20) {
+                    nameError.textContent = 'Name is too long (max 20 characters)';
+                    nameError.classList.add('show');
+                    return;
+                }
+
 
         // Room code: ?room=CODE or /game1/game/CODE - NOT the last segment of /game1/game
         // (that segment is the word "game", which wrongly triggered "join" and "room not found").
@@ -584,6 +604,11 @@
             document.getElementById('screen-waiting').style.display = 'flex';
         }
         };
+
+        // Hide error when player starts typing
+        document.getElementById('playerName').addEventListener('input', () => {
+            document.getElementById('name-error').classList.remove('show');
+        });
 
         document.getElementById('startGame').onclick = () => {
             if (currentRoomCode) {

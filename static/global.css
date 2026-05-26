@@ -122,7 +122,7 @@ Game links are styled as buttons for better UX. */
 /* Hover state - soft mint green feedback */
 .links-container a:hover,
 .btn:hover,
-#okBtn:hover,
+#submit_name_btn:hover,
 #startGame:hover,
 #becomeExplainerBtn:hover,
 #new-game-btn:hover,
@@ -200,6 +200,21 @@ Game links are styled as buttons for better UX. */
     }
 }
 
+.name-error {
+    color: #f4a261;
+    font-size: 0.95rem;
+    margin-top: 0.5rem;
+    min-height: 1.5rem;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.name-error.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 /* ----------- Game 1 - Describe & Guess ---------*/
 /* ------------ The rules (rules.html) ----------*/
 .rules-card {
@@ -257,8 +272,8 @@ Game links are styled as buttons for better UX. */
     text-align: center;
 }
 
-/* ---- okBtn - submit player name to join the game ---- */
-#okBtn,
+/* ---- submit_name_btn - submit player name to join the game ---- */
+#submit_name_btn,
 #startGame,
 #becomeExplainerBtn,
 #next-round-btn {
