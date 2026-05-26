@@ -12,6 +12,8 @@
 </head>
 
 <body>
+    <button id="theme-toggle" class="theme-toggle" title="Switch theme">🌓</button>
+
     <div class="main-card rules-card"> <!-- Light card with rounded corners - purely decorative -->
         <h1 class="rules-title">Rules</h1>
         <p class="howtoplay">
@@ -27,4 +29,21 @@
         <img class="cat-image" src="{{ url_for('static', filename='common/images/orange_cat_rules.jpg') }}" alt="Orange cat">
     </div>
 </body>
+
+<script>
+    // Theme toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    const savedTheme = localStorage.getItem('theme');
+
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+    }
+
+    themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('light-theme');
+        const isLight = document.body.classList.contains('light-theme');
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    });
+</script>
+
 </html>

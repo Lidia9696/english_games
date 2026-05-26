@@ -12,7 +12,32 @@ html, body {
 }
 
 :root {
-    /* Phone: square card */
+    /* --- Theme colors (dark by default) --- */
+    --bg: #313030;
+    --card-bg: rgba(255, 255, 255, 0.06);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --text: #ffffff;
+    --text-secondary: #ddd;
+    --text-muted: #aaa;
+    --accent: #f4a261;
+    --btn-bg: white;
+    --link-btn-bg: white;
+    --btn-text: #111;
+    --link-btn-text: #111;
+    --btn-hover: rgb(191, 230, 207);
+    --link-btn-hover: rgb(191, 230, 207);
+    --btn-hover-text: #111;
+    --link-btn-hover-text: #111;
+    --skip-bg: #e0dcd5;
+    --guessed-bg: #b7c9a8;
+    --dialog-bg: #2a2a2a;
+    --timer-bg: rgba(255, 255, 255, 0.08);
+    --input-bg: white;
+    --input-text: #111;
+    --table-border: 2px solid rgba(255, 255, 255, 0.2);
+    --table-border-light: 1px solid rgba(255, 255, 255, 0.1);
+
+    /* --- Sizes --- */
     --card-max-w: 300px;
     --card-ratio: 1 / 1;
     --card-vw: 85vw;
@@ -25,12 +50,62 @@ html, body {
     --cat-waiting-size: 200px;
 }
 
+.theme-toggle {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 100;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text);
+    font-size: 1.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+}
+
+.theme-toggle:hover {
+    background: var(--btn-hover);
+}
+
+
+/* --- Light theme --- */
+body.light-theme {
+    --bg: #f0ebe3;
+    --card-bg: rgba(255, 255, 255, 0.8);
+    --card-border: rgba(0, 0, 0, 0.1);
+    --text: #2c1810;
+    --text-secondary: #4a3520;
+    --text-muted: #7a6a5a;
+    --accent: #d4782f;
+    --btn-bg: #5a8a6a;
+    --link-btn-bg: #c5dcc5;
+    --btn-text: #ffffff;
+    --link-btn-text: #1a2a14;
+    --btn-hover: #4a7a5a;
+    --link-btn-hover: #a8c8a0;
+    --btn-hover-text: #ffffff;
+    --link-btn-hover-text: #1a2a14;
+    --skip-bg: #d4cec4;
+    --guessed-bg: #a8bf9a;
+    --dialog-bg: #f5f0e8;
+    --timer-bg: rgba(0, 0, 0, 0.05);
+    --input-bg: #f5f0e8;
+    --input-text: #2c1810;
+    --table-border: 2px solid rgba(0, 0, 0, 0.2);
+    --table-border-light: 1px solid rgba(0, 0, 0, 0.1);
+}
+
 /* Main page settings */
 body {
-    background-color: #313030;
+    background-color: var(--bg); color: var(--text);
     /* System font stack for maximum performance - no external requests, instant rendering */
     font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    color: #ffffff;            /* White */
     min-height: 100vh;         /* full viewport height for all browsers*/
     min-height: 100dvh;        /* For mobile devices */
     min-height: -webkit-fill-available;  /* for old Safari */
@@ -47,9 +122,8 @@ body {
 
 /* Light vertical card - wraps all content */
 .main-card {
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--card-bg); border: 1px solid var(--card-border);
     border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
     padding: 2.5rem;
     width: var(--plate-w);
     height: var(--plate-h);
@@ -84,7 +158,7 @@ body {
 /* Choose a game */
 .subtitle {
     font-size: 1.1rem;
-    color: #ddd;
+    color: var(--text-secondary);
     margin-bottom: 1.5rem;
     font-weight: 500; /* Medium weight for emphasis */
 }
@@ -110,8 +184,8 @@ body {
 Game links are styled as buttons for better UX. */
 .links-container a,
 .btn {
-    background: white;
-    color: black;
+    background: var(--link-btn-bg);
+    color: var(--link-btn-text);
     padding: 0.8rem 1.5rem;
     border-radius: 10px;
     text-decoration: none;
@@ -120,22 +194,28 @@ Game links are styled as buttons for better UX. */
 }
 
 /* Hover state - soft mint green feedback */
-.links-container a:hover,
-.btn:hover,
 #submit_name_btn:hover,
 #startGame:hover,
 #becomeExplainerBtn:hover,
 #new-game-btn:hover,
 #next-round-btn:hover,
 #back-to-main-btn:hover {
-    background: rgb(191, 230, 207);
+    background: var(--btn-hover);
+    color: var(--btn-hover-text);
 }
+
+.links-container a:hover,
+.btn:hover {
+    background: var(--link-btn-hover);
+    color: var(--link-btn-hover-text);
+}
+
 
 /* Small descriptive text under each game title (e.g., "A word-guessing adventure") */
 .game-description {
     display: block;
     font-size: 0.8rem;
-    color: #666; /* Dark grey */
+    color: var(--text-muted);
     margin-top: 5px;
     font-weight: normal;
 }
@@ -160,7 +240,7 @@ Game links are styled as buttons for better UX. */
 /* Container for the entire contact block */
 .contactme {
     padding-bottom: 1rem;
-    color: #aaa;
+    color: var(--text-muted);
     font-size: 0.8rem;
     text-align: center;
     width: 100%;
@@ -171,7 +251,7 @@ Game links are styled as buttons for better UX. */
 .contactme-questions {
     margin-bottom: 0.2rem;
     font-size: 1rem; /* Readable size */
-    color: #ccc;
+    color: var(--text-secondary);
 }
 
 /* Wrapper for the email and GitHub links - stacks them vertically */
@@ -183,7 +263,7 @@ Game links are styled as buttons for better UX. */
 }
 
 .contactme a {
-    color: inherit;  /* Takes #aaa from .contactme */
+    color: inherit;  /* Takes color from .contactme */
     text-decoration: none;
     background: transparent;
     padding: 0;
@@ -201,7 +281,7 @@ Game links are styled as buttons for better UX. */
 }
 
 .name-error {
-    color: #f4a261;
+    color: var(--accent);
     font-size: 0.95rem;
     margin-top: 0.5rem;
     min-height: 1.5rem;
@@ -237,7 +317,7 @@ Game links are styled as buttons for better UX. */
     max-width: 32rem;
     margin: 0;
     line-height: 1.5;
-    color: #ddd;
+    color: var(--text-secondary);
 }
 
 /* Waiting room cat — same idea: fixed width when image is added */
@@ -267,7 +347,9 @@ Game links are styled as buttons for better UX. */
     padding: 0.5rem 0.75rem;
     font-size: 1rem;
     border-radius: 8px;
-    border: none;
+    border: 2px solid var(--card-border);
+    background: var(--input-bg);
+    color: var(--input-text);
     min-width: 12rem;
     text-align: center;
 }
@@ -283,8 +365,7 @@ Game links are styled as buttons for better UX. */
     border-radius: 10px;
     border: none;
     cursor: pointer;
-    background: white;
-    color: #111;
+    background: var(--btn-bg); color: var(--btn-text);
 }
 
 #screen-waiting {
@@ -308,7 +389,7 @@ Game links are styled as buttons for better UX. */
 #players-list li {
     margin-bottom: 0.3rem;
     font-size: 1.1rem;
-    color: #ddd;
+    color: var(--text-secondary);
 }
 
 .waiting-cat {
@@ -338,7 +419,7 @@ Game links are styled as buttons for better UX. */
 /* ---- Who'll help us guess words? ---- */
 .explainer-prompt {
     font-size: 1rem;
-    color: #ddd;
+    color: var(--text-secondary);
     margin: 0 auto 0.75rem;
 }
 
@@ -437,7 +518,7 @@ Game links are styled as buttons for better UX. */
 
 /* Skip button - muted gray */
 #skipBtn {
-    background: #e0dcd5;
+    background: var(--skip-bg);
     border: 2px solid #8b8b8b;
     outline: 1px solid #bfbfbf;
     outline-offset: -5px;
@@ -449,7 +530,7 @@ Game links are styled as buttons for better UX. */
 
 /* Guessed button - green */
 #guessedBtn {
-    background: #b7c9a8;
+    background: var(--guessed-bg);
     border: 2px solid #6b8a5e;
     outline: 1px solid #a0bf90;
     outline-offset: -5px;
@@ -471,8 +552,8 @@ Game links are styled as buttons for better UX. */
     width: min(var(--card-max-w), var(--card-vw));
     font-size: clamp(2rem, 8vw, 3rem);
     font-weight: 700;
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+    background: var(--timer-bg);
     border-radius: 16px;
     padding: 0.35rem 0;
     margin: 0 auto;
@@ -490,7 +571,7 @@ Game links are styled as buttons for better UX. */
 
 .guessing-timer-label {
     font-size: 0.85rem;
-    color: #aaa;
+    color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 2px;
     margin: 0;
@@ -499,19 +580,19 @@ Game links are styled as buttons for better UX. */
 
 .guessing-explainer {
     font-size: 1.1rem;
-    color: #ccc;
+    color: var(--text-secondary);
     margin-top: 0;
 }
 
 #explainer-name {
-    color: #f4a261;
+    color: var(--accent);
     font-weight: 600;
 }
 
 .guessing-cta {
     font-size: clamp(1.25rem, 5vw, 1.6rem);
     font-weight: 700;
-    color: #ffffff;
+    color: var(--text);
     margin-top: 0.25rem;
 }
 
@@ -522,7 +603,7 @@ Game links are styled as buttons for better UX. */
     top: 45%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: #2a2a2a;
+    background: var(--dialog-bg);
     border-radius: 16px;
     padding: 2rem;
     text-align: center;
@@ -535,7 +616,7 @@ Game links are styled as buttons for better UX. */
     margin-bottom: 1.5rem;
     font-size: 1.1rem;
     line-height: 1.45;
-    color: #ddd;
+    color: 1a1a1a;
 }
 
 .skipped-cards-dialog-buttons {
@@ -557,7 +638,7 @@ Game links are styled as buttons for better UX. */
 }
 
 .skipped-btn--yes {
-    background: #b7c9a8;
+    background: var(--guessed-bg);
     color: #1a2a14;
 }
 
@@ -567,7 +648,7 @@ Game links are styled as buttons for better UX. */
 
 .skipped-btn--no {
     background: #d8d8d8;
-    color: #2a2a2a;
+    color: 1a1a1a;
 }
 
 .skipped-btn--no:hover {
@@ -578,7 +659,7 @@ Game links are styled as buttons for better UX. */
     margin-top: 0.75rem;
     font-size: 1rem;
     font-weight: 600;
-    color: #f4a261;
+    color: var(--accent);
 }
 
 /* ---- Leave game confirmation ---- */
@@ -607,7 +688,7 @@ Game links are styled as buttons for better UX. */
     position: relative;
     z-index: 1;
     width: min(22rem, 100%);
-    background: #2a2a2a;
+    background: var(--dialog-bg);
     border-radius: 16px;
     padding: 1.75rem 1.5rem;
     text-align: center;
@@ -619,7 +700,7 @@ Game links are styled as buttons for better UX. */
     margin-bottom: 1.5rem;
     font-size: 1.05rem;
     line-height: 1.45;
-    color: #ddd;
+    color: 1a1a1a;
 }
 
 .exit-dialog-buttons {
@@ -643,8 +724,8 @@ Game links are styled as buttons for better UX. */
 
 /* Yes, take me home! */
 .exit-btn--leave {
-    background: #e0dcd5;
-    color: #2a2a2a;
+    background: var(--skip-bg);
+    color: 1a1a1a;
     border: 2px solid #8b8b8b;
 }
 
@@ -656,7 +737,7 @@ Game links are styled as buttons for better UX. */
 
 /* No, let's keep playing! */
 .exit-btn--stay {
-    background: #b7c9a8;
+    background: var(--guessed-bg);
     color: #1a2a14;
     border: 2px solid #6b8a5e;
 }
@@ -701,7 +782,7 @@ Game links are styled as buttons for better UX. */
 .main-cards-finished p {
     font-size: 1.3rem;
     font-weight: 600;
-    color: #f4a261;
+    color: var(--accent);
     margin-bottom: 1.5rem;
     letter-spacing: 0.5px;
 }
@@ -715,16 +796,16 @@ Game links are styled as buttons for better UX. */
 #results-table th {
     text-align: center;
     padding: 0.5rem 1rem;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-    color: #ccc;
+    border-bottom: var(--table-border);
+    color: var(--text-secondary);
     font-weight: 600;
 }
 
 #results-table td {
     text-align: center;
     padding: 0.5rem 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    color: #ddd;
+    border-bottom: var(--table-border-light);
+    color: var(--text-secondary);
 }
 
 #results-table tbody tr:last-child td {
@@ -741,8 +822,8 @@ Game links are styled as buttons for better UX. */
     border-radius: 10px;
     border: none;
     cursor: pointer;
-    background: white;
-    color: #111;
+    background: var(--btn-bg);
+    color: var(--btn-text);
 }
 
 #back-to-main-btn {

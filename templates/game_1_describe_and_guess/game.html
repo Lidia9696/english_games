@@ -522,6 +522,16 @@
             score = 0;
             currentIndex = 0;
 
+            fetch('/static/game_1_describe_and_guess/data/words.json')
+                .then(response => response.json())
+                .then(data => {
+                    cards = shuffleArray(data);
+                    skippedCards = [];
+                    showCard(0);
+                })
+                .catch(error => console.error('Upload error:', error));
+
+
             // Hide result and score table
             document.getElementById('round-result').style.display = 'none';
             document.getElementById('score-table').style.display = 'none';
@@ -711,6 +721,22 @@
             document.getElementById('skipped-cards-dialog').style.display = 'none';
             endRound();
         };
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+
+        if (savedTheme === 'light') {
+            document.body.classList.add('light-theme');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-theme');
+            const isLight = document.body.classList.contains('light-theme');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        });
+
+
     </script>
 
 </body>
